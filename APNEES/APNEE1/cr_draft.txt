@@ -1,3 +1,9 @@
 On suppose qu'il y a EXACTEMENT autant de créneaux que d'enseignements
 Le probleme est dont un probleme de couplage parfait dans un graphe biparti.
 
+La solution desirée consiste à enumerer totes le possibilites.
+Soit tout ensemble de parties de l'esemble d'aretes qui donne un coplage valide.
+Comme on travaille sur un graphe biparti on n'a pas besoin de se soucier de filtrer
+les aretes quand on les choisi car toute arete va de E à H.
+On doit evidement verifier prealablement que le graphe est bien biparti et qu'une 
+couplage est possible.

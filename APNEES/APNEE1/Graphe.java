@@ -176,35 +176,12 @@ class Graphe {
     }
 
     /**
-     * Test bipartiteness of the graph
-     * 
-     * @return true if graph is bipartite, else false
-     */
-    public boolean EstBiparti() {
-        // Tests bipartiteness by verifiying if its 2-colorable
-        int n = nombreSommets();
-        // initialize graph uncolored with possible colors {1,2}
-        int[] coloring = new int[n];
-        
-        // checks every vertice in case of more than one connected component
-        for (int v = 0; v < n; v++) {
-            if (coloring[v] == 0) { // if not colored
-                coloring[v] = 1;    // color it
-                if (!dfs_2Coloring(v, coloring)) { // test 2 coloration for component
-                    return false;   
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * Test if given edge list is valid perfect matching
      * 
      * @param arcs list of edges
      * @return true if edges compose perfect matching, else false
      */
-    public boolean EstCouplage(Arc[] arcs) {
+    public boolean IsPerfectMatching(ArrayList<Arc> arcs) {
         ArrayList<Integer> matchedVertices = new ArrayList<Integer>();
         
         for (Arc e : arcs) {
@@ -221,6 +198,70 @@ class Graphe {
 
         return true;
 
+    }
+
+    /**
+     * Test bipartiteness of the graph
+     * 
+     * @return true if graph is bipartite, else false
+     */
+    public boolean IsBipartite() {
+        // Tests bipartiteness by verifiying if its 2-colorable
+        int n = nombreSommets();
+        // initialize graph uncolored with possible colors {1,2}
+        int[] coloring = new int[n];
+        
+        // checks every vertice in case of more than one connected component
+        for (int v = 0; v < n; v++) {
+            if (coloring[v] == 0) { // if not colored
+                coloring[v] = 1;    // color it
+                if (!dfs_2Coloring(v, coloring)) { // test 2 coloration for component
+                    return false;   
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns partitions for a bipartite graph
+     * 
+     * @return a list containing the partitions if the graph is bipartite, else null
+     */
+    public List<ArrayList<Integer>> BipartitePartitions() {
+        // Tests bipartiteness by verifiying if its 2-colorable
+        int n = nombreSommets();
+        // initialize graph uncolored with possible colors {1,2}
+        int[] coloring = new int[n];
+        
+        // checks every vertice in case of more than one connected component
+        for (int v = 0; v < n; v++) {
+            if (coloring[v] == 0) { // if not colored
+                coloring[v] = 1;    // color it
+                if (!dfs_2Coloring(v, coloring)) { // test 2 coloration for component
+                    return null;   
+                }
+            }
+        }
+        // graph bipartite
+        // create partitions from coloring
+        ArrayList<Integer> p1 = new ArrayList<>();
+        ArrayList<Integer> p2 = new ArrayList<>();
+
+        for (int v = 0; v < n; v++) {
+            if (coloring[v] == 1) {
+                p1.add(v+1);
+            } else {
+                p2.add(v+1);
+            }
+        }
+
+        List<ArrayList<Integer>> partitions = new ArrayList<>();
+        partitions.add(p1);
+        partitions.add(p2);
+
+        return partitions;
     }
 
 
@@ -247,6 +288,78 @@ class Graphe {
             }
         }
         return true;
-    } 
+    }
+
+    /**
+     * Computes a perfect matching for a bipartite graph
+     * 
+     * @return list of edges representing matching if graph is bipartite, else null 
+     */
+    public ArrayList<Arc> GetPerfectMatching() {
+        // check number of vertex
+        if (nombreSommets() % 2 != 0) {
+            return null;
+        }
+
+        // check bipartiteness and get partitions
+        List<ArrayList<Integer>> partitions = BipartitePartitions();
+        if (partitions == null) {
+            return null;
+        }
+
+        ArrayList<Arc> matching = Enumerate_matching(partitions.get(0), 
+                                                        partitions.get(1),
+                                                        new ArrayList<Arc>(Arrays.asList(arcs())), new ArrayList<Arc>());
+
+        return matching;
+    }
+
+    private ArrayList<Arc> Enumerate_matching(ArrayList<Integer> p1, 
+                                                    ArrayList<Integer> p2, 
+                                                    ArrayList<Arc> a, 
+                                                    ArrayList<Arc> m) {
+        if (p1.isEmpty() || p2.isEmpty()) {
+            return m;
+        } else if (a.isEmpty()) {
+            return null;
+        } else {
+            Arc x;
+            int aux;
+            ArrayList<Arc> sol;
+
+            x = a.remove(a.size()-1); // pop last element
+            sol = Enumerate_matching(p1, p2, a, m);
+            if (sol != null && IsPerfectMatching(sol)) {
+                return sol;
+            }
+            
+            for (Arc e : a) {
+                if (e.source == x.source || 
+                    e.source == x.destination ||
+                    e.destination == x.destination || 
+                    e.destination == x.source) {
+                        a.remove(e);
+                    }
+            }
+
+            aux = p1.indexOf(x.source);
+            aux = aux != -1 ? aux : p1.indexOf(x.destination);
+            if (aux != -1) {
+                p1.remove(aux);
+            }
+
+            aux = p2.indexOf(x.source);
+            aux = aux != -1 ? aux : p2.indexOf(x.destination);
+            if (aux != -1) {
+                p2.remove(aux);
+            }
+
+            m.add(x);
+            
+            sol = Enumerate_matching(p1, p2, a, m);
+            return sol;
+
+        }
+    }
 
 }
