@@ -1,0 +1,3 @@
+On suppose qu'il y a EXACTEMENT autant de créneaux que d'enseignements
+Le probleme est dont un probleme de couplage parfait dans un graphe biparti.
+
