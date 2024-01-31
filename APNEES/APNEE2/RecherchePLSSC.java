@@ -25,8 +25,23 @@ public class RecherchePLSSC {
 
     // Recherche d'une PLSSC de 2 chaînes, prog. dyn.
     static String PLSSC_PD(String S1, String S2) {
-        // à modifier
-        return S1;
+        int n = S1.length();
+        int m = S2.length();
+
+        int[][] dp_memo = new int[n+1][m+1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                 if (S1.charAt(i-1) == S2.charAt(j-1)) {
+                    dp_memo[i][j] = dp_memo[i-1][j-1]+1;
+                 } else {
+                    dp_memo[i][j] = Math.max(dp_memo[i-1][j], dp_memo[i][j-1]);
+                 }
+            }
+        }
+
+        return ((Integer)dp_memo[n][m]).toString();
+
     }
 
 
@@ -61,6 +76,20 @@ public class RecherchePLSSC {
 
                 // Impression de la longueur du S1 de S2 et du temps d'exécution
                 System.out.println(S1.length() + "\t" + S2.length() + "\t" + ((endTime - startTime)/1.0E9));
+
+                // date de début
+                startTime = System.nanoTime();
+
+                result = PLSSC_PD(S1,S2);
+
+                // date de fin pour le calcul du temps écoulé
+                endTime = System.nanoTime();
+
+                System.out.println("PLSSC PD: " + result);
+
+                // Impression de la longueur du S1 de S2 et du temps d'exécution
+                System.out.println(S1.length() + "\t" + S2.length() + "\t" + ((endTime - startTime)/1.0E9));
+
 
             } catch (FileNotFoundException e) {
                 System.err.println("Erreur lors de l'ouverture du fichier " + args[i]);
