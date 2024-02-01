@@ -1,3 +1,5 @@
+package APNEE2;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,8 +15,8 @@ public class RecherchePLSSC {
         } else if (S1.charAt(0) == S2.charAt(0)) {
             return S1.charAt(0) + PLSSC(new String(S1.substring(1)), new String(S2.substring(1)));
         } else {
-            String SubS1 = PLSSC(new String(S1.substring(1)), new String(S2));
-            String SubS2 = PLSSC(new String(S1), new String(S2.substring(1)));
+            String SubS1 = PLSSC(new String(S1), new String(S2.substring(1)));
+            String SubS2 = PLSSC(new String(S1.substring(1)), new String(S2));
             if (SubS1.length() >= SubS2.length()) {
                 return SubS1;
             } else {
