@@ -27,11 +27,13 @@ public class RecherchePLSSC {
     static String PLSSC_PD(String S1, String S2) {
         int n = S1.length();
         int m = S2.length();
+        int i,j;
 
+        // create dynamic programing table
         int[][] dp_memo = new int[n+1][m+1];
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= m; j++) {
+        for (i = 1; i <= n; i++) {
+            for (j = 1; j <= m; j++) {
                  if (S1.charAt(i-1) == S2.charAt(j-1)) {
                     dp_memo[i][j] = dp_memo[i-1][j-1]+1;
                  } else {
@@ -40,7 +42,22 @@ public class RecherchePLSSC {
             }
         }
 
-        return ((Integer)dp_memo[n][m]).toString();
+        // Retrieve plssc from table
+        StringBuilder plssc_bldr = new StringBuilder();
+        i = n; j = m;
+        while (i > 0 && j > 0) {
+            if (S1.charAt(i-1) == S2.charAt(j-1)) {
+                plssc_bldr.append(S1.charAt(i-1));
+                i--;
+                j--;
+            } else if (dp_memo[i-1][j] > dp_memo[i][j-1]) {
+                 i--;
+            } else {
+                j--;
+            }
+        }
+        plssc_bldr.reverse();
+        return plssc_bldr.toString();
 
     }
 
