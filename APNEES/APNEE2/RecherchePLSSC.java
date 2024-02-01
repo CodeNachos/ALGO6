@@ -1,5 +1,3 @@
-package APNEE2;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,15 +6,14 @@ import java.io.InputStreamReader;
 
 public class RecherchePLSSC {
 
-    // Recherche d'une PLSSC de 2 chaînes, naïf
     static String PLSSC(String S1, String S2) {
         if (S1.isEmpty() || S2.isEmpty()) {
             return "";
         } else if (S1.charAt(0) == S2.charAt(0)) {
             return S1.charAt(0) + PLSSC(new String(S1.substring(1)), new String(S2.substring(1)));
         } else {
-            String SubS1 = PLSSC(new String(S1), new String(S2.substring(1)));
-            String SubS2 = PLSSC(new String(S1.substring(1)), new String(S2));
+            String SubS1 = PLSSC(new String(S1.substring(1)), new String(S2));
+            String SubS2 = PLSSC(new String(S1), new String(S2.substring(1)));
             if (SubS1.length() >= SubS2.length()) {
                 return SubS1;
             } else {
@@ -95,20 +92,6 @@ public class RecherchePLSSC {
 
                 // Impression de la longueur du S1 de S2 et du temps d'exécution
                 System.out.println(S1.length() + "\t" + S2.length() + "\t" + ((endTime - startTime)/1.0E9));
-
-                // date de début
-                startTime = System.nanoTime();
-
-                result = PLSSC_PD(S1,S2);
-
-                // date de fin pour le calcul du temps écoulé
-                endTime = System.nanoTime();
-
-                System.out.println("PLSSC PD: " + result);
-
-                // Impression de la longueur du S1 de S2 et du temps d'exécution
-                System.out.println(S1.length() + "\t" + S2.length() + "\t" + ((endTime - startTime)/1.0E9));
-
 
             } catch (FileNotFoundException e) {
                 System.err.println("Erreur lors de l'ouverture du fichier " + args[i]);

@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Comparator;
 
-class PlotTest {
+class ThreadedTest {
     private static String[] ReadTest(File file) {
         FileInputStream input;
         BufferedReader reader;
@@ -157,7 +157,7 @@ class PlotTest {
         double[] PLSSC_test_time = new double[tests.length];
         double[] PLSSC_DP_test_time = new double[tests.length];
         long startTime, endTime;
-        String s1, s2, result;
+        String s1, s2;
         int nbPLSSC = 0;
         int nbPLSSC_DP = 0;
 
@@ -170,19 +170,36 @@ class PlotTest {
             test_strings = ReadTest(tests[t]);
             s1 = test_strings[0]; s2 = test_strings[1];
 
+            ThreadedPLSSC myRunnable = new ThreadedPLSSC(s1, s2);
+
+            Thread thread = new Thread(myRunnable);
+
+            int timeout = 10000; // 10 seconds
+
+            // Start the thread
+            startTime = System.nanoTime();
+            thread.start();
+            try {
+                thread.join(timeout);
             
-            if (s1.length() < 20 && s2.length() < 20) {
-                startTime = System.nanoTime();
-                result = RecherchePLSSC.PLSSC(s1, s2);
-                endTime = System.nanoTime();
-                PLSSC_test_time[nbPLSSC] = (endTime - startTime) / 1.0E9;
-                PLSSC_test_length[nbPLSSC] = Math.max(s1.length(), s2.length());
-                System.out.println("PLSSC    " +  s1.length() + "\t" + s2.length() + "\t" + ((endTime - startTime)/1.0E9));
-                nbPLSSC++;
+                if (myRunnable.CaugthStackOverflow()) {
+                    ;
+                } else if (thread.isAlive()) {
+                    thread.interrupt();
+                    System.out.println("PLSSC terminated: timed out");
+                } else {
+                    endTime = System.nanoTime();
+                    PLSSC_test_time[nbPLSSC] = (endTime - startTime) / 1.0E9;
+                    PLSSC_test_length[nbPLSSC] = Math.max(s1.length(), s2.length());
+                    System.out.println("PLSSC    " +  s1.length() + "\t" + s2.length() + "\t" + ((endTime - startTime)/1.0E9));
+                    nbPLSSC++;
+                }
+            } catch (InterruptedException e) {
+                System.out.println("main thread interrupted ");
             }
 
             startTime = System.nanoTime();
-            result = RecherchePLSSC.PLSSC_PD(s1, s2);
+            RecherchePLSSC.PLSSC_PD(s1, s2);
             endTime = System.nanoTime();
             PLSSC_DP_test_time[t] = (endTime - startTime) / 1.0E9;
             PLSSC_DP_test_length[nbPLSSC_DP] = Math.max(s1.length(), s2.length());
@@ -196,10 +213,56 @@ class PlotTest {
 
         System.out.println("Generating plot... ");
         GenPlot();
-        System.out.println("done!");
+        System.out.println("done");
 
         System.exit(0);
     }
+}
 
+class ThreadedPLSSC implements Runnable {
+    String s1, s2;
+    private volatile boolean stackOverflowCaugth;
+    
+    public ThreadedPLSSC(String s1, String s2) {
+        this.s1 = s1;
+        this.s2 = s2;
+        this.stackOverflowCaugth = false;
+    }
 
+    @Override
+    public void run() {
+        try {
+            PLSSCRec(s1, s2);
+        } catch (StackOverflowError e) {
+            stackOverflowCaugth = true;
+            System.out.println("PLSSC terminated: stack overflow");
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Recherche d'une PLSSC de 2 chaînes, naïf
+    private String PLSSC(String s1, String s2) throws InterruptedException {
+        return PLSSCRec(new String(s1), new String(s2));
+    }
+
+    private String PLSSCRec(String s1, String s2) throws InterruptedException {
+        if (s1.isEmpty() || s2.isEmpty()) {
+            return "";
+        } else if (s1.charAt(0) == s2.charAt(0)) {
+            return s1.charAt(0) + PLSSC(new String(s1.substring(1)), new String(s2.substring(1)));
+        } else {
+            String SubS1 = PLSSCRec(new String(s1.substring(1)), new String(s2));
+            String SubS2 = PLSSCRec(new String(s1), new String(s2.substring(1)));
+            if (SubS1.length() >= SubS2.length()) {
+                return SubS1;
+            } else {
+                return SubS2;
+            }
+        }
+    }
+
+    public boolean CaugthStackOverflow() {
+        return stackOverflowCaugth;
+    } 
 }
