@@ -3,9 +3,11 @@ package Modele;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+
 
 import Global.Configuration;
 import Structures.Sequence;
@@ -14,6 +16,20 @@ public class IA1Box extends IA {
 
     private static final int[][] DIRECTIONS = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
     
+    ArrayList<int[]> cheminCaisse;
+    Iterator<int[]> coup;
+
+    public IA1Box(Niveau niveau) {
+        this.niveau = niveau;
+        int[] caissePos = trouveCaisse();
+        cheminCaisse = caisseDijkstra(caissePos[0], caissePos[1]);
+        for (int[] coup: cheminCaisse) {
+            System.out.print(coup[0] + " " + coup[1] + " | ");
+        }
+        System.out.println("");
+        coup = cheminCaisse.iterator();
+    }
+
 	@Override
 	public Sequence<Coup> joue() {
 		Sequence<Coup> resultat = Configuration.nouvelleSequence();
@@ -24,17 +40,8 @@ public class IA1Box extends IA {
         int cc = caissePos[1];
         int cl = caissePos[0];
 
-        ArrayList<int[]> cheminCaisse = caisseDijkstra(caissePos[0], caissePos[1]);
-
-        for (int[] coup: cheminCaisse) {
-            System.out.print(coup[0] + " " + coup[1] + " | ");
-        }
-        System.out.println("");
-
-        
-
         if (cheminCaisse != null) {
-            int[] coupCaisse = cheminCaisse.get(0);
+            int[] coupCaisse = coup.next();
             ArrayList<int[]> cheminPousseur = pousseurDijkstra(pl, pc, cl - coupCaisse[0], cc - coupCaisse[1]);
             for (int[] coupPousseur: cheminPousseur) {
                 resultat.insereQueue(coupAvecMarque(coupPousseur[0], coupPousseur[1]));
@@ -126,6 +133,7 @@ public class IA1Box extends IA {
 
     Coup coupAvecMarque(int dL, int dC) {
 		// Un coup dans la direction donnée
+        System.out.println(dL + " " + dC);
 		Coup resultat = niveau.deplace(dL, dC);
 		int pL = niveau.lignePousseur();
 		int pC = niveau.colonnePousseur();

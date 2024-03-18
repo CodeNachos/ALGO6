@@ -48,7 +48,7 @@ public abstract class IA {
 				resultat = new IAParcoursFixe();
 				break;
 			case "1Box":
-				resultat = new IA1Box();
+				resultat = new IA1Box(j.niveau());
 				break;
 			default:
 				Configuration.erreur("IA de type " + type + " non supportée");
