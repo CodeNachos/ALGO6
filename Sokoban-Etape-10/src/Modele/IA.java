@@ -50,6 +50,9 @@ public abstract class IA {
 			case "1Box":
 				resultat = new IA1Box(j.niveau());
 				break;
+			case "MagIA":
+				resultat = new MagIA();
+				break;
 			default:
 				Configuration.erreur("IA de type " + type + " non supportée");
 		}
