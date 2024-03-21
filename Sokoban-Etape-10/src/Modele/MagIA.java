@@ -31,13 +31,13 @@ public class MagIA extends IA {
         ArrayList<gameState> path = getSolution();
 
         if (path == null) { 
-            System.out.println("no path found");
+            //System.out.println("no path found");
             return Configuration.nouvelleSequence();
         } else {
             for (gameState s: path) {
-                System.out.print(s.playerPos + " | ");
+                //System.out.print(s.playerPos + " | ");
             }
-            System.out.println();
+            //System.out.println();
         }
 
         Sequence<Coup> resultat = Configuration.nouvelleSequence();
@@ -47,7 +47,6 @@ public class MagIA extends IA {
         for (gameState s: path) {
             int dL = s.playerPos.getL()-curL;
             int dC = s.playerPos.getC()-curC;
-            System.err.println(dL + " " + dC);
             resultat.insereQueue(niveau.deplace(dL, dC)); 
             curL = s.playerPos.getL();
             curC = s.playerPos.getC();
@@ -113,12 +112,16 @@ public class MagIA extends IA {
             gameState current = queue.poll();
             visited.add(current);
             for (Position2D direction: DIRECTIONS) {
-                Position2D newPlayerPos = new Position2D(current.playerPos.getL()+direction.getL(), current.playerPos.getC()+direction.getC());
-                if (!isValidPosition(newPlayerPos))
-                    continue;
                 gameState newState = tryMove(current, direction);
                 if (newState != null && !visited.contains(newState)) {
-                    
+                    //RedacteurNiveau r = new RedacteurNiveau(System.out);
+                    //Niveau newLVL = populateBaseLevel(newState);
+                    //for (Position2D p: newState.boxPos) {System.out.print(p);}
+                    //System.out.println("\n"+newState.playerPos);
+                    //r.ecrisNiveau(newLVL);
+                    //Scanner scanner = new Scanner(System.in);
+                    //System.out.println("Press Enter to continue...");
+                    //scanner.nextLine();
                     queue.add(newState);
                     cameFrom.put(newState, current);
 
@@ -140,10 +143,9 @@ public class MagIA extends IA {
     private gameState tryMove(gameState state, Position2D direction) {
         Niveau tryLevel = populateBaseLevel(state);
        
-        
         int destL = state.playerPos.getL() + direction.getL();
 		int destC = state.playerPos.getC() + direction.getC();
-        gameState resultat = new gameState(state.playerPos, state.boxPos, state.distance+1);
+        gameState resultat = state.clone();
 
 		if (tryLevel.aCaisse(destL, destC)) {
 			int dCaisL = destL + direction.getL();
@@ -151,20 +153,33 @@ public class MagIA extends IA {
 
 			if (tryLevel.estOccupable(dCaisL, dCaisC)) {
                 int b = 0;
-                while (resultat.boxPos.get(b).getL() != destL && resultat.boxPos.get(b).getC() != destC) {
+                while (state.boxPos.get(b).getL() != destL || state.boxPos.get(b).getC() != destC) {
                     b++;
                 }
 				resultat.boxPos.get(b).move(dCaisL, dCaisC);
+                resultat.setDistance(resultat.getDistance()+minDistanceToObjective(resultat.boxPos.get(b)));
 			} else {
 				return null;
 			}
 		}
 		if (!tryLevel.aMur(destL, destC)) {
 			resultat.playerPos.move(destL, destC);
+            resultat.setDistance(resultat.getDistance()+1);
 			return resultat;
 		}
-
+        //System.out.println("walking into the wall");
         return null;
+    }
+
+    private int minDistanceToObjective(Position2D boxPos) {
+        int minDist = Integer.MAX_VALUE;
+        for (Position2D o: objectives) {
+            int d = (int)boxPos.distance(o);
+            if (d < minDist)
+                minDist = d;
+        }
+
+        return minDist;
     }
 
     private HashSet<Position2D> getObjectives() {
@@ -227,6 +242,12 @@ public class MagIA extends IA {
             this.c = c;
         }
 
+        public double distance(Position2D other) {
+            double dl = this.l - other.l;
+            double dc = this.c - other.c;
+            return Math.sqrt(dl * dl + dc * dc);
+        }
+
         @Override
         public Position2D clone() {
             return new Position2D(l, c);
@@ -244,7 +265,7 @@ public class MagIA extends IA {
 
             Position2D o = (Position2D) other;
 
-            return o.l == this.l && o.c == this.c;
+            return (o.l == this.l) && (o.c == this.c);
         }
 
         @Override
@@ -271,6 +292,14 @@ public class MagIA extends IA {
             }
 
             this.distance = distance;
+        }
+
+        public int getDistance() {
+            return distance;
+        }
+
+        public void setDistance(int d) {
+            this.distance = d;
         }
 
         @Override
