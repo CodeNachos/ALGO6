@@ -2,7 +2,6 @@ package Modele;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -127,7 +126,7 @@ public class MagIA extends IA {
             for (Position2D direction : DIRECTIONS) {
                 GameState newState = isValidMove(current, direction);
                 if (newState != null && !visited.contains(newState)) {
-                    newState.setPriority(heuristic(newState, objectivePositions));
+                   newState.setPriority(heuristic(newState, objectivePositions));
                     queue.add(newState);
                     cameFrom.put(newState, current);
 

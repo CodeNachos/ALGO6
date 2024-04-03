@@ -27,6 +27,19 @@ public class GameState implements Comparable<GameState> {
         this.priority = priority;
     }
 
+    public boolean equivalent(GameState other) {
+
+        if (other.boxPos.size() != boxPos.size())
+            return false;
+
+        for (Integer boxId : boxPos.keySet()) {
+            if (!boxPos.get(boxId).equals(other.boxPos.get(boxId)))
+                return false;
+        }
+
+        return true;
+    }
+
     @Override
     public GameState clone() {
         return new GameState(playerPos, new HashMap<>(boxPos), priority);
