@@ -28,7 +28,9 @@ public class MagIA extends IA {
         
         objectives = getObjectives();
 
-        ArrayList<gameState> path = getSolution();
+        ArrayList<Position2D> initialBoxPos = recupererCaisses();
+        Position2D initialPlayerPos = new Position2D(niveau.pousseurL, niveau.pousseurC);
+        ArrayList<gameState> path = computeSolution(initialPlayerPos, initialBoxPos);
 
         if (path == null) { 
             //System.out.println("no path found");
@@ -99,14 +101,14 @@ public class MagIA extends IA {
         return positions;
     }
 
-    private ArrayList<gameState> getSolution() {
-        ArrayList<Position2D> initialBoxPos = recupererCaisses();
-        Position2D initialPlayerPos = new Position2D(niveau.pousseurL, niveau.pousseurC);
+    private ArrayList<gameState> computeSolution(Position2D player, ArrayList<Position2D> boxes) {
+        
+
 
         PriorityQueue<gameState> queue = new PriorityQueue<>();
         HashSet<gameState> visited = new HashSet<>();
         Map<gameState, gameState> cameFrom = new HashMap<>();
-        queue.add(new gameState(initialPlayerPos, initialBoxPos, 0));
+        queue.add(new gameState(player, boxes, 0));
 
         while (!queue.isEmpty()) {
             gameState current = queue.poll();
@@ -122,7 +124,8 @@ public class MagIA extends IA {
                     //Scanner scanner = new Scanner(System.in);
                     //System.out.println("Press Enter to continue...");
                     //scanner.nextLine();
-                    queue.add(newState);
+                    if (!queue.contains(newState))
+                        queue.add(newState);
                     cameFrom.put(newState, current);
 
                     if (isFinalState(newState)) {
@@ -145,6 +148,10 @@ public class MagIA extends IA {
        
         int destL = state.playerPos.getL() + direction.getL();
 		int destC = state.playerPos.getC() + direction.getC();
+
+        if (!isValidPosition(new Position2D(destL, destC)))
+            return null;
+
         gameState resultat = state.clone();
 
 		if (tryLevel.aCaisse(destL, destC)) {
@@ -157,8 +164,18 @@ public class MagIA extends IA {
                     b++;
                 }
 				resultat.boxPos.get(b).move(dCaisL, dCaisC);
-                resultat.setDistance(resultat.getDistance()+minDistanceToObjective(resultat.boxPos.get(b)));
-			} else {
+                if (resultat.boxPos.size() > 1) {
+
+                    ArrayList<Position2D> movedBox = new ArrayList<>();
+                    movedBox.add(resultat.boxPos.get(b));
+                    ArrayList<gameState> boxPath = computeSolution(new Position2D(destL, destC), movedBox);
+                    if (boxPath == null)
+                        return null;
+                    resultat.setDistance(boxPath.size());
+                } else {
+                    resultat.setDistance(minDistanceToObjective(resultat.boxPos.get(b)));
+                }
+			} else {    
 				return null;
 			}
 		}
@@ -195,7 +212,7 @@ public class MagIA extends IA {
     }
 
     private boolean isFinalState(gameState state) {
-        for (int b = 0; b < NBOXES; b++) {
+        for (int b = 0; b < state.boxPos.size(); b++) {
             if (!objectives.contains(state.boxPos.get(b))) {
                 return false;
             }
@@ -217,7 +234,7 @@ public class MagIA extends IA {
     private Niveau populateBaseLevel(gameState state) {
         Niveau stateLevel = BASELEVEL.clone();
         stateLevel.ajoute(niveau.POUSSEUR, state.playerPos.getL(), state.playerPos.getC());
-        for (int b = 0; b < NBOXES; b++) {
+        for (int b = 0; b < state.boxPos.size(); b++) {
             stateLevel.ajoute(niveau.CAISSE, state.boxPos.get(b).getL(), state.boxPos.get(b).getC());
         }
         return stateLevel;
@@ -283,11 +300,12 @@ public class MagIA extends IA {
         Position2D playerPos;
         ArrayList<Position2D> boxPos;
         int distance;
+        int lenght;
 
         public gameState(Position2D playerPosition, ArrayList<Position2D> boxPosition, int distance) {
             this.playerPos = playerPosition.clone();
             boxPos = new ArrayList<>();
-            for (int b = 0; b < NBOXES; b++) {
+            for (int b = 0; b < boxPosition.size(); b++) {
                 this.boxPos.add(boxPosition.get(b).clone());
             }
 
