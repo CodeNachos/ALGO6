@@ -49,7 +49,7 @@ public class FinalState {
         for (Integer objectiveId : objectivePositions.keySet()) {
             Integer matchedBoxId = matches.get(objectiveId);
             if (matchedBoxId != null) {
-                matchedBoxPositions.put(matchedBoxId, boxPositions.get(matchedBoxId));
+                matchedBoxPositions.put(matchedBoxId, objectivePositions.get(matchedBoxId));
             }
         }
 

@@ -35,11 +35,8 @@ public class MagIA extends IA {
         boxes = getBoxes();
         Position2D playerPos = new Position2D(niveau.lignePousseur(), niveau.colonnePousseur());
         
-        //finalState = FinalState.computeFinalState(boxes, objectives, playerPos);
-        //for (Integer b: finalState.boxPos.keySet()) {
-        //    System.out.println(objectives.get(b) + " ");
-        //}
-
+        finalState = FinalState.computeFinalState(boxes, objectives, playerPos);
+        System.out.println(" ok");
         List<GameState> path = getSolution(boxes, objectives, playerPos);
 
         if (path == null) { 
@@ -105,24 +102,16 @@ public class MagIA extends IA {
     
     // Heuristic function minimizing distance in high-dimensional space
     private double heuristic(GameState state, Map<Integer,Position2D> objectivesPosition) {
-        int totalDistance = 0;
-        for (Position2D boxPos : state.boxPos.values()) {
-            int minDistance = Integer.MAX_VALUE;
-            for (Position2D objectivePos : objectivesPosition.values()) {
-                int distance = Math.abs(boxPos.l - objectivePos.l) + Math.abs(boxPos.c - objectivePos.c);
-                minDistance = Math.min(minDistance, distance);
-            }
-            totalDistance += minDistance;
+        // Calculate Euclidean distance between box coordinates of current state and final state
+        double distance = 0.0;
+        for (Integer boxId : state.boxPos.keySet()) {
+            Position2D boxPos = state.boxPos.get(boxId);
+            Position2D finalBoxPos = finalState.boxPos.get(boxId);
+            
+            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)); 
         }
-
-        int minDistance = Integer.MAX_VALUE;
-        for (Position2D boxPos : state.boxPos.values()) {
-            int distance = Math.abs(boxPos.l - state.playerPos.l) + Math.abs(boxPos.c - state.playerPos.c);   
-            minDistance = Math.min(minDistance, distance);
-        }
-        totalDistance += minDistance;
         
-        return totalDistance;   
+        return distance;
     }
 
     // A* algorithm to find solution

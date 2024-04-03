@@ -41,6 +41,9 @@ public abstract class IA {
 			case "MagIA":
 				resultat = new MagIA();
 				break;
+			case "Sokosolver":
+				resultat = new Sokosolver();
+				break;
 			default:
 				Configuration.erreur("IA de type " + type + " non supportée");
 		}

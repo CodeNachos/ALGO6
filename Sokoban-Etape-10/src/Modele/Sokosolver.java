@@ -2,6 +2,7 @@ package Modele;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +102,7 @@ public class Sokosolver extends IA {
         return objectives;
     }
     
-    // Heuristic function 
+    // Heuristic function
     private double heuristic(GameState state, Map<Integer,Position2D> objectivesPosition) {
         int totalDistance = 0;
         for (Position2D boxPos : state.boxPos.values()) {
@@ -180,7 +181,8 @@ public class Sokosolver extends IA {
 
         if (!isValidPosition(new Position2D(destL, destC)))
             return null;
-    
+        
+        int box_diff = 0;
         if (tryLevel.aCaisse(destL, destC)) {
             int dCaisL = destL + direction.getL();
             int dCaisC = destC + direction.getC();
@@ -191,16 +193,29 @@ public class Sokosolver extends IA {
                     b++;
                 }
                 resultat.boxPos.get(b).move(dCaisL, dCaisC);
+            
             } else {
                 return null;
             }
         }
+
         if (!tryLevel.aMur(destL, destC)) {
             resultat.playerPos.move(destL, destC);
             return resultat;
         }
         
         return null;
+    }
+
+    private int minDistanceToObjective(Position2D boxPos) {
+        int minDist = Integer.MAX_VALUE;
+        for (Position2D o: objectives.values()) {
+            int d = (int)boxPos.distance(o);
+            if (d < minDist)
+                minDist = d;
+        }
+
+        return minDist;
     }
 
     private boolean isFinalState(GameState state) {
