@@ -29,11 +29,11 @@ package Modele;
 import Global.Configuration;
 
 public class Niveau extends Historique<Coup> implements Cloneable {
-	static final int VIDE = 0;
-	static final int MUR = 1;
-	static final int POUSSEUR = 2;
-	static final int CAISSE = 4;
-	static final int BUT = 8;
+	public static final int VIDE = 0;
+	public static final int MUR = 1;
+	public static final int POUSSEUR = 2;
+	public static final int CAISSE = 4;
+	public static final int BUT = 8;
 	int l, c;
 	int[][] cases;
 	String nom;
@@ -79,7 +79,7 @@ public class Niveau extends Historique<Coup> implements Cloneable {
 		cases[i][j] = VIDE;
 	}
 
-	void supprime(int contenu, int i, int j) {
+	public void supprime(int contenu, int i, int j) {
 		if (aBut(i, j)) {
 			if (aCaisse(i, j) && ((contenu & CAISSE | contenu & BUT) != 0))
 				nbCaissesSurBut--;
@@ -91,7 +91,7 @@ public class Niveau extends Historique<Coup> implements Cloneable {
 		cases[i][j] &= ~contenu;
 	}
 
-	void ajoute(int contenu, int i, int j) {
+	public void ajoute(int contenu, int i, int j) {
 		redimensionne(i, j);
 		int resultat = cases[i][j] | contenu;
 		if ((resultat & BUT) != 0) {

@@ -38,18 +38,6 @@ public abstract class IA {
 		// Méthode de fabrication pour l'IA, qui crée le bon objet selon la config
 		String type = Configuration.IA;
 		switch (type) {
-			case "Aleatoire":
-				resultat = new IAAleatoire();
-				break;
-			case "Teleportations":
-				resultat = new IATeleportations();
-				break;
-			case "ParcoursFixe":
-				resultat = new IAParcoursFixe();
-				break;
-			case "1Box":
-				resultat = new IA1Box(j.niveau());
-				break;
 			case "MagIA":
 				resultat = new MagIA();
 				break;

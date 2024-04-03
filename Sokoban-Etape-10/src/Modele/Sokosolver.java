@@ -2,7 +2,6 @@ package Modele;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,13 +9,12 @@ import java.util.Map;
 import java.util.PriorityQueue;
 
 import Global.Configuration;
-import Modele.UtilIA.FinalState;
 import Modele.UtilIA.GameState;
 import Modele.UtilIA.Position2D;
 import Structures.Sequence;
 
 
-public class MagIA extends IA {
+public class Sokosolver extends IA {
 
     static private Position2D[] DIRECTIONS = new Position2D[] {new Position2D(0, 1), new Position2D(1, 0), new Position2D(0, -1), new Position2D(-1, 0)};
 
@@ -103,7 +101,7 @@ public class MagIA extends IA {
         return objectives;
     }
     
-    // Heuristic function minimizing distance in high-dimensional space
+    // Heuristic function 
     private double heuristic(GameState state, Map<Integer,Position2D> objectivesPosition) {
         int totalDistance = 0;
         for (Position2D boxPos : state.boxPos.values()) {
