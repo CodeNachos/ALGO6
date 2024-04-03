@@ -11,6 +11,7 @@ import java.util.PriorityQueue;
 
 import Global.Configuration;
 import Modele.UtilIA.FinalState;
+import Modele.UtilIA.FloydWarshall;
 import Modele.UtilIA.GameState;
 import Modele.UtilIA.Position2D;
 import Structures.Sequence;
@@ -27,28 +28,21 @@ public class MagIA extends IA {
 
     GameState finalState;
 
+    int[][] distances;
+
     public Sequence<Coup> joue() {
         baseLevel = getBaseLevel();
 
+        distances = FloydWarshall.initGraph(baseLevel);
+        distances = FloydWarshall.floydWarshall(distances);
         
         objectives = getObjectives();
         boxes = getBoxes();
         Position2D playerPos = new Position2D(niveau.lignePousseur(), niveau.colonnePousseur());
         
-        finalState = FinalState.computeFinalState(boxes, objectives, playerPos);
-        System.out.println(" ok");
+        finalState = FinalState.computeFinalState(boxes, objectives, playerPos, baseLevel, distances);
+        
         List<GameState> path = getSolution(boxes, objectives, playerPos);
-
-        if (path == null) { 
-            //System.out.println("no path found");
-            return Configuration.nouvelleSequence();
-        } else {
-            for (GameState s: path) {
-                System.out.print(s.priority + " | ");
-            }
-            System.out.println();
-        }
-        System.out.println();
 
         Sequence<Coup> resultat = Configuration.nouvelleSequence();
         int curL = niveau.pousseurL;
@@ -102,8 +96,9 @@ public class MagIA extends IA {
     
     // Heuristic function minimizing distance in high-dimensional space
     private double heuristic(GameState state, Map<Integer,Position2D> objectivesPosition) {
-        // Calculate Euclidean distance between box coordinates of current state and final state
+        // Calculate Manhattan distance between box coordinates of current state and final state
         double distance = 0.0;
+        
         for (Integer boxId : state.boxPos.keySet()) {
             Position2D boxPos = state.boxPos.get(boxId);
             Position2D finalBoxPos = finalState.boxPos.get(boxId);
@@ -175,12 +170,21 @@ public class MagIA extends IA {
         if (tryLevel.aCaisse(destL, destC)) {
             int dCaisL = destL + direction.getL();
             int dCaisC = destC + direction.getC();
-    
+            
             if (tryLevel.estOccupable(dCaisL, dCaisC)) {
                 int b = 0;
                 while (current.boxPos.get(b).getL() != destL || current.boxPos.get(b).getC() != destC) {
                     b++;
                 }
+                
+                int finalBoxL =  finalState.boxPos.get(b).getL();
+                int finalBoxC =  finalState.boxPos.get(b).getC();
+                if (dCaisL != finalBoxL && dCaisC != finalBoxC) {   // if box not on final position check for deadlock state
+                    if (distances[dCaisL * niveau.colonnes() + dCaisC][finalBoxL * niveau.colonnes() + finalBoxC] == FloydWarshall.INF) { // deadlock state
+                        return null; 
+                    }
+                }
+
                 resultat.boxPos.get(b).move(dCaisL, dCaisC);
             } else {
                 return null;

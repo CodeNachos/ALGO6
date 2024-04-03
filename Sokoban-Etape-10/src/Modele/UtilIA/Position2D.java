@@ -20,10 +20,10 @@ public class Position2D {
         this.c = c;
     }
 
-    public double distance(Position2D other) {
-        double dl = this.l - other.l;
-        double dc = this.c - other.c;
-        return Math.sqrt(dl * dl + dc * dc);
+    public int distance(Position2D other) {
+        int dl = this.l - other.l;
+        int dc = this.c - other.c;
+        return Math.abs(dl - dl) + Math.abs(dc - dc);
     }
 
     @Override
