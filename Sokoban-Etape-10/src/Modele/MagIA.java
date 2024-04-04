@@ -17,6 +17,9 @@ import Structures.Sequence;
 
 
 public class MagIA extends IA {
+    final static int VERT = 0x00CC00;
+	final static int MARRON = 0xBB7755;
+    final static int ROUGE = 0xCC0000;
 
     static private Position2D[] DIRECTIONS = new Position2D[] {new Position2D(0, 1), new Position2D(1, 0), new Position2D(0, -1), new Position2D(-1, 0)};
 
@@ -60,14 +63,6 @@ public class MagIA extends IA {
         return resultat;
     }
 
-    Coup coupAvecMarque(int dL, int dC) {
-		// Un coup dans la direction donnée
-		Coup resultat = niveau.deplace(dL, dC);
-		int pL = niveau.lignePousseur();
-		int pC = niveau.colonnePousseur();
-		resultat.ajouteMarque(pL, pC, 0);
-		return resultat;
-    }
 
     private Map<Integer, Position2D> getBoxes() {
         Map<Integer, Position2D> objectives = new HashMap<>();
@@ -104,10 +99,31 @@ public class MagIA extends IA {
             Position2D boxPos = state.boxPos.get(boxId);
             Position2D finalBoxPos = finalState.boxPos.get(boxId);
             
-            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)) * 1; 
+            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)) ; 
         }
         
         return distance;
+    }
+
+    // Heuristic function minimizing distance in high-dimensional space
+    private double heuristicII(GameState state) {
+        // Calculate Manhattan distance between box coordinates of current state and final state
+        double distance = 0.0;
+        
+        for (Integer boxId : state.boxPos.keySet()) {
+            Position2D boxPos = state.boxPos.get(boxId);
+            Position2D finalBoxPos = finalState.boxPos.get(boxId);
+            
+            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)); 
+            distance *= 100;
+        }
+        
+        int min = Integer.MAX_VALUE;
+        for (Integer boxId : state.boxPos.keySet()) {
+            Position2D boxPos = state.boxPos.get(boxId);
+            min = Math.min(boxPos.distance(state.playerPos), min);
+        }
+        return distance + min;
     }
 
     // A* algorithm to find solution
@@ -128,7 +144,9 @@ public class MagIA extends IA {
             for (Position2D direction : DIRECTIONS) {
                 GameState newState = isValidMove(current, direction);
                 if (newState != null && !visited.contains(newState)) {
-                   newState.setPriority(heuristicI(newState));
+                    
+                    newState.setPriority(heuristicI(newState));
+                    
                     queue.add(newState);
                     cameFrom.put(newState, current);
 

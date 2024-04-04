@@ -28,15 +28,14 @@ public class GameState implements Comparable<GameState> {
     }
 
     public boolean equivalent(GameState other) {
-
-        if (other.boxPos.size() != boxPos.size())
-            return false;
-
+        if (this == other) {
+            return true;
+        }
+        
         for (Integer boxId : boxPos.keySet()) {
             if (!boxPos.get(boxId).equals(other.boxPos.get(boxId)))
                 return false;
         }
-
         return true;
     }
 
