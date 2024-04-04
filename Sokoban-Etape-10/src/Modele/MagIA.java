@@ -42,8 +42,10 @@ public class MagIA extends IA {
         finalState = FinalState.computeFinalState(boxes, objectives, playerPos, baseLevel, distances);
         
         List<GameState> path = getSolution(boxes, objectives, playerPos);
-
         Sequence<Coup> resultat = Configuration.nouvelleSequence();
+        if (path == null) {
+            return resultat;
+        }
         int curL = niveau.pousseurL;
         int curC = niveau.pousseurC;
         
@@ -102,7 +104,7 @@ public class MagIA extends IA {
             Position2D boxPos = state.boxPos.get(boxId);
             Position2D finalBoxPos = finalState.boxPos.get(boxId);
             
-            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)); 
+            distance += (Math.abs(boxPos.l - finalBoxPos.l) + Math.abs(boxPos.c - finalBoxPos.c)) * 1; 
         }
         
         return distance;

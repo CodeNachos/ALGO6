@@ -10,6 +10,10 @@ public class FinalState {
 
     static public GameState computeFinalState(Map<Integer, Position2D> boxPositions, Map<Integer, Position2D> objectivePositions,
         Position2D playerPosition, Niveau level, int[][] distances) {
+        
+        if (boxPositions.size() == 1) {
+            return new GameState(playerPosition, objectivePositions, 0);
+        }
 
         // order objectives by their priority
         PriorityQueue<ObjectPriority> objectiveQueue = new PriorityQueue<>();
@@ -32,18 +36,20 @@ public class FinalState {
                     continue;
                 }
 
-                // check if objective is accessible
+                // get box distance to objective
                 Position2D boxPos = boxPositions.get(boxId);
                 Position2D objPos = objectivePositions.get(objectiveId);
-                if (distances[boxPos.getL() * level.colonnes() + boxPos.getC()][objPos.getL() * level.colonnes() + objPos.getC()] == FloydWarshall.INF) {
+                int boxdist = distances[boxPos.getL() * level.colonnes() + boxPos.getC()][objPos.getL() * level.colonnes() + objPos.getC()];
+                
+                // check if objective is accessible
+                if (boxdist == FloydWarshall.INF) {
                     continue;
                 }
 
                 // check for closest
-                int p = boxPositions.get(boxId).distance(objectivePositions.get(objectiveId));
-                if (p < boxPriority.priority) {
+                if (boxdist < boxPriority.priority) {
                     boxPriority.id = boxId;
-                    boxPriority.priority = p;
+                    boxPriority.priority = boxdist;
                 }
             }
 
@@ -85,7 +91,7 @@ public class FinalState {
 
         @Override
         public int compareTo(ObjectPriority other) {
-            return Integer.compare(this.priority, other.priority);
+            return Integer.compare(other.priority, this.priority);
         }
     }
 
