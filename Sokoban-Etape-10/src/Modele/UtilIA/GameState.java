@@ -9,6 +9,8 @@ public class GameState implements Comparable<GameState> {
     public Position2D playerPos;
     public double priority;
 
+    public Position2D direction = new Position2D(0, 0);
+
     public GameState(Position2D playerPosition, Map<Integer, Position2D> boxPosition, double priority) {
         this.playerPos = playerPosition.clone();
         this.boxPos = new HashMap<>();
@@ -28,16 +30,18 @@ public class GameState implements Comparable<GameState> {
     }
 
     public boolean equivalent(GameState other) {
-
-        if (other.boxPos.size() != boxPos.size())
-            return false;
-
-        for (Integer boxId : boxPos.keySet()) {
-            if (!boxPos.get(boxId).equals(other.boxPos.get(boxId)))
-                return false;
+        if (this == other) {
+            return true;
         }
-
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        
+        if (!boxPos.equals(other.boxPos)) {
+            return false;
+        }
         return true;
+        
     }
 
     @Override
@@ -60,11 +64,9 @@ public class GameState implements Comparable<GameState> {
         }
         GameState other = (GameState) obj;
 
-        if (!playerPos.equals(other.playerPos)) {
-            return false;
-        }
-        if (!boxPos.equals(other.boxPos)) {
-            return false;
+        for (Integer boxId : boxPos.keySet()) {
+            if (!boxPos.get(boxId).equals(other.boxPos.get(boxId)))
+                return false;
         }
         return true;
     }

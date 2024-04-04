@@ -23,7 +23,19 @@ public class Position2D {
     public int distance(Position2D other) {
         int dl = this.l - other.l;
         int dc = this.c - other.c;
-        return Math.abs(dl - dl) + Math.abs(dc - dc);
+        return Math.abs(dl) + Math.abs(dc);
+    }
+
+    public Position2D subtract(Position2D other) {
+        int dl = this.l - other.l;
+        int dc = this.c - other.c;
+        return new Position2D(dl, dc);
+    }
+
+    public Position2D add(Position2D other) {
+        int dl = this.l + other.l;
+        int dc = this.c + other.c;
+        return new Position2D(dl, dc);
     }
 
     @Override
