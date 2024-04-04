@@ -26,6 +26,18 @@ public class Position2D {
         return Math.abs(dl) + Math.abs(dc);
     }
 
+    public Position2D subtract(Position2D other) {
+        int dl = this.l - other.l;
+        int dc = this.c - other.c;
+        return new Position2D(dl, dc);
+    }
+
+    public Position2D add(Position2D other) {
+        int dl = this.l + other.l;
+        int dc = this.c + other.c;
+        return new Position2D(dl, dc);
+    }
+
     @Override
     public Position2D clone() {
         return new Position2D(l, c);

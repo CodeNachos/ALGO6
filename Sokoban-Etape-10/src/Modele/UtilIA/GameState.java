@@ -8,6 +8,7 @@ public class GameState implements Comparable<GameState> {
     public Map<Integer, Position2D> boxPos;
     public Position2D playerPos;
     public double priority;
+    public Position2D direction;
 
     public GameState(Position2D playerPosition, Map<Integer, Position2D> boxPosition, double priority) {
         this.playerPos = playerPosition.clone();

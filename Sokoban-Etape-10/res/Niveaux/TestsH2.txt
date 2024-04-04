@@ -1,4 +1,4 @@
-
+Tests best fit to HeuristicsII of MagIA
 ######     ######
 #    #     #    #
 #    #######    #
