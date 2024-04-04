@@ -96,7 +96,7 @@ public class MagIA extends IA {
     }
     
     // Heuristic function minimizing distance in high-dimensional space
-    private double heuristic(GameState state, Map<Integer,Position2D> objectivesPosition) {
+    private double heuristicI(GameState state) {
         // Calculate Manhattan distance between box coordinates of current state and final state
         double distance = 0.0;
         
@@ -117,7 +117,7 @@ public class MagIA extends IA {
         Map<GameState, GameState> cameFrom = new HashMap<>();
 
         GameState initial = new GameState(playerPosition, new HashMap<>(boxPositions), 0); // Cloning boxPositions
-        initial.setPriority(heuristic(initial, objectivePositions)); // Set initial priority based on heuristic
+        initial.setPriority(heuristicI(initial)); // Set initial priority based on heuristic
         queue.add(initial);
         
 
@@ -128,7 +128,7 @@ public class MagIA extends IA {
             for (Position2D direction : DIRECTIONS) {
                 GameState newState = isValidMove(current, direction);
                 if (newState != null && !visited.contains(newState)) {
-                   newState.setPriority(heuristic(newState, objectivePositions));
+                   newState.setPriority(heuristicI(newState));
                     queue.add(newState);
                     cameFrom.put(newState, current);
 
