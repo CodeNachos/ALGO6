@@ -1,0 +1,11 @@
+L3 - INFO Générale - ALGO 6 PROJET SOKOBAN
+ABDELKADER Youssef - MASCARENHAS Rafael
+
+    Pour lancer le programme avec notre IA, il suffit de s'assurer que la variable:
+public static final String IA
+    Dans Global, configuration.java, a pour valeur la chaine "MagIA". Dans le dossier res, vous trouverez un
+ensemble de test (niveaux Sokoban) différents avec lesquelles vous pouvez tester notre IA. 
+    Pour lancer le programme avec un fichier de test spécifique, il suffit de changer cette variable
+dans le fichier Sokoban.java (le main):
+    in = Configuration.ouvre("Niveaux/MyTests.txt");
+En remplacant MyTests.txt par le fichier désiré.
