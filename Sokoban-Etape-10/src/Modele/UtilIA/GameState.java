@@ -7,6 +7,7 @@ import java.util.Objects;
 public class GameState implements Comparable<GameState> {
     public Map<Integer, Position2D> boxPos;
     public Position2D playerPos;
+    public Position2D playerPrev;
     public double priority;
 
     public Position2D direction = new Position2D(0, 0);

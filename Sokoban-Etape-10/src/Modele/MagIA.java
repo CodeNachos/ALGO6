@@ -52,8 +52,8 @@ public class MagIA extends IA {
         //    System.out.println(t + " | ");
         //}
         
-        List<GameState> path = getSolution(boxes, objectives, playerPos);
-        for (GameState p: path) {
+        List<GameState> solutionPath = getSolution(boxes, objectives, playerPos);
+        for (GameState p: solutionPath) {
             System.out.print(p.playerPos + " | ");
         }
         System.out.println();
@@ -61,17 +61,33 @@ public class MagIA extends IA {
         List<Position2D> playerPath = new ArrayList<>();
         GameState currentState = initialState;
         Position2D lastPos;
-        for (GameState next: path) {
-            List<Position2D> playerToState = getPlayerPath(currentState, next.playerPos);
-            for (Position2D pp : playerToState) {
-                if (playerPath.size() > 0 && playerPath.get(playerPath.size()-1).equals(pp))
-                    continue;
-                playerPath.add(pp);
+
+        Position2D origin, target;
+        Map<Integer, Position2D> boxPos;
+        for (int i = 0; i < solutionPath.size(); i++) {
+            if (i == 0) {
+                origin = initialState.playerPos;
+                target = solutionPath.get(i).playerPos;
+                boxPos = initialState.boxPos;
+            } else {
+                origin = solutionPath.get(i-1).playerPos;
+                target = solutionPath.get(i).playerPos;
+                boxPos = solutionPath.get(i-1).boxPos;
             }
-            playerPath.add(next.playerPos.add(next.direction));
-            currentState = next;
-            for (Position2D p: playerPath) {
-            System.out.print(p + " | ");
+
+            List<Position2D> moves = getPlayerPath(boxPos, origin, target);
+            
+            for (Position2D p : moves) {
+                playerPath.add(p);
+                System.out.print(p + " | ");
+            }
+            System.out.println();
+
+            moves = getPlayerPath(solutionPath.get(i).boxPos, target, target.add(solutionPath.get(i).direction));
+            
+            for (Position2D p : moves) {
+                playerPath.add(p);
+                System.out.print(p + " | ");
             }
             System.out.println();
         }
@@ -82,13 +98,13 @@ public class MagIA extends IA {
         int curL = niveau.pousseurL;
         int curC = niveau.pousseurC;
         
-        //for (GameState s: path) {
-        //    int dL = s.playerPos.getL()-curL;
-        //    int dC = s.playerPos.getC()-curC;
-        //    resultat.insereQueue(niveau.deplace(dL, dC)); 
-        //    curL = s.playerPos.getL();
-        //    curC = s.playerPos.getC();
-        //}
+        for (Position2D s: playerPath) {
+            int dL = s.getL()-curL;
+            int dC = s.getC()-curC;
+            resultat.insereQueue(niveau.deplace(dL, dC)); 
+            curL = s.getL();
+            curC = s.getC();
+        }
         
         return resultat;
     }
@@ -274,7 +290,7 @@ public class MagIA extends IA {
             return null;
         }
         if (!tryLevel.aMur(destL, destC)) {
-            resultat.playerPos.move(tile.getL(), tile.getC());
+            resultat.playerPos.move(tile.l, tile.c);
             resultat.direction = direction;
             return resultat;
         }
@@ -313,14 +329,15 @@ public class MagIA extends IA {
         return stateLevel;
     }
 
-    public List<Position2D> getPlayerPath(GameState current, Position2D target) {
-        Niveau currentLevel = populateBaseLevel(current);
+    public List<Position2D> getPlayerPath(Map<Integer, Position2D> boxes, Position2D origin, Position2D target) {
+        Niveau currentLevel = populateBaseLevel(new GameState(origin, boxes, 0));
+        
         PriorityQueue<PositionPriority> queue = new PriorityQueue<>();
         HashSet<Position2D> visited = new HashSet<>();
         Map<Position2D, Position2D> cameFrom = new HashMap<>();
 
-        PositionPriority initial = new PositionPriority(current.playerPos, 0); 
-        initial.setPriority(current.playerPos.distance(target)); 
+        PositionPriority initial = new PositionPriority(origin, 0); 
+        initial.setPriority(origin.distance(target)); 
         queue.add(initial);
         
 
@@ -330,6 +347,10 @@ public class MagIA extends IA {
             // Generate successor states by moving the player
             for (Position2D direction : DIRECTIONS) {
                 Position2D newPos = pos.add(direction);
+                if (newPos.equals(target)) {
+                    cameFrom.put(newPos, pos);
+                    return reconstructPathPlayer(newPos, cameFrom);
+                }
                 if (!visited.contains(newPos) && currentLevel.estOccupable(newPos.l, newPos.c)) {
                     PositionPriority newEntry = new PositionPriority(newPos, newPos.distance(target));
                     queue.add(newEntry);
@@ -341,7 +362,8 @@ public class MagIA extends IA {
                 }
             }
         }
-
+        System.out.println(origin);
+        System.out.println(target);
         // No solution found
         return null;
     }
