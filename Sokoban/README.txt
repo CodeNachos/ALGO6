@@ -29,7 +29,7 @@ Pour aller plus loin...
 On a aussi essayer d'ameliorer l'estrategie du MagIA. C'est comme MagIAII est 
 venu au monde.
 Pour le moment cet IA ne generere pas de coups mais affiche les movements des
-caisses necessaires à atteindre un état de jeu fial.
+caisses necessaires à atteindre un état de jeu final.
 L'affichage comporte à chaque étape quel case le pousseur doit se placer et dans
 quelle direction il faut se deplacer
 
